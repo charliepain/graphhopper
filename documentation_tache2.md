@@ -73,3 +73,29 @@ Les arguments ont été choisies de sorte que pour chaque coordonnée,
 #### Explication de l'oracle:
 Les valeurs [*lat*, *long*] du GHPoint retourné sont les résultats du calcul [1+(11-1)*0.7, 3+(8-3)*0.7]:
 https://www.wolframalpha.com/input?i2d=true&i=%7B%7B1%2B%5C%2840%2911-1%5C%2841%29*0.7%7D%2C%7B3%2B%5C%2840%298-3%5C%2841%29*0.7%7D%7D.
+
+#### 6. [*testPruneFileEndTwoDots()*](web-api/src/test/java/com/graphhopper/util/HelperExtraTest.java)
+##### Intention:
+Tester la méthode [*Helper.pruneFileEnd(String file)*](web-api/src/main/java/com/graphhopper/util/Helper.java)
+sur un nom de fichier contenant deux ".".
+##### Motivation des données choisies:
+Données:
+file = "c_program.c.txt"
+*file* contient deux ".".
+#### Explication de l'oracle:
+La méthode doit retourner une chaîne qui est identique à la sous-chaîne avant le deuxième "." dans *file*,
+donc l'appel doit retourner "c_program.c".
+
+#### 7. [*testKeepInExceedsMax()*](web-api/src/test/java/com/graphhopper/util/HelperExtraTest.java)
+##### Intention:
+Tester la méthode [*Helper.keepIn(double value, double min, double max)*](web-api/src/main/java/com/graphhopper/util/Helper.java)
+avec *value* supérieur à *max*.
+##### Motivation des données choisies:
+Données:
+value = 9  
+min = 3  
+max = 5  
+*value* (9) > *max* (5)
+#### Explication de l'oracle:
+La méthode retourne la valeur *max* si *value* est supérieur à *max*. Ici, c'est le cas, donc
+l'appel retourne *max* (5).
