@@ -117,6 +117,7 @@ public class EdgeCaseTests {
     @Test
     public void testArrayUtilEdgeCasesForArrayManipulationWithBoundaryValues() {
         // Test constant with size 0
+        // valid
         IntArrayList emptyConstant = ArrayUtil.constant(0, 5);
         assertEquals(0, emptyConstant.size());
         
@@ -155,6 +156,7 @@ public class EdgeCaseTests {
     @Test
     public void testArrayUtilComplexArrayOperationsWithDuplicateAndEdgeData() {
         // Test removeConsecutiveDuplicates with all same elements
+        // valid
         int[] allSame = {5, 5, 5, 5, 5};
         int newSize = ArrayUtil.removeConsecutiveDuplicates(allSame, allSame.length);
         assertEquals(1, newSize);
