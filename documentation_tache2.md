@@ -99,3 +99,37 @@ max = 5
 #### Explication de l'oracle:
 La méthode retourne la valeur *max* si *value* est supérieur à *max*. Ici, c'est le cas, donc
 l'appel retourne *max* (5).
+
+### Mutation
+Les fichier HTML permettant de voir les rapports de mutations se trouvent dans le
+répertoire [mutations](mutations).
+#### Score de mutation avant les nouveaux tests
+* ArrayUtil, DistanceCalcEuclidean: 73%
+* Helper: 25%
+#### Score de mutation après les nouveaux tests
+* ArrayUtil, DistanceCalcEuclidean: 82%
+* Helper: 26%
+#### Analyse des mutants
+Le score de mutation a augmenté, donc les nouveaux tests ont découvert des mutants.
+Beaucoup trop de mutants ont été détectés pour qu'on puisse tous les analyser.
+On va analyser 2 de ces mutants, car l'énoncé demande d'ajouter des tests jusqu'à
+obtenir 2 nouveaux mutants si on en avait pas trouvé.
+1. ArrayUtil.java ligne 244: Replaced integer addition with subtraction  
+La mutation se produit sur une condition dans la méthode ArrayUtilMerge().
+La conditionnelle non mutée vérifie que l'addition de la taille de a avec celle de b égale 0 et 
+retourne un tableau vide si c'est le cas. La conditionnelle mutée vérifie que la soustraction
+de la taille de a avec celle de b égale 0 et retourne un tableau vide si c'est le cas. 
+La condition non mutée est satisfaite seulement lorsqu'il y a deux tableaux vides.
+La condition mutée est satisfaite seulement lorsqu'il a deux tableaux de même taille.
+Parmi les tests (assert) originaux seulement un d'eux (le test avec deux tableaux vides)
+dépend sur la nature de la condition. C'est donc seulement ce test qui a le potentiel de
+causer un échec si la condition est muté.
+Cependant, avec mutation ou non, l'appel avec deux tableaux vides (et donc deux tableaux de même taille)
+retourne un tableau vide dans les deux cas, ce qui est le résultat attendu.
+Donc, le test passe dans les deux cas. Aucun des tests échoue avec l'introduction du mutant.
+Le test [*testMergeSameElems()*](core/src/test/java/com/graphhopper/util/ArrayUtilExtraTest.java)
+qu'on a ajouté teste deux tableaux de même taille, mais elles ne sont pas vides.
+L'appel ne retourne donc pas un tableau vide avec la condition non mutée, mais il reoturne un tableau
+vide avec la condition mutée. Le mutant cause donc un échec du test. Ainsi, on parvient à détecter
+un nouveau mutant.
+2. Deuxième mutant détecté...

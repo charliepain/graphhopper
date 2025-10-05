@@ -324,10 +324,14 @@
                     </targetClasses>
                     <targetTests>
                         <param>com.graphhopper.util.ArrayUtilTest</param>
-<!--                        <param>com.graphhopper.util.ArrayUtilExtraTest</param>-->
                         <param>com.graphhopper.util.DistanceCalcEuclideanTest</param>
-<!--                        <param>com.graphhopper.util.DistanceCalcEuclideanExtraTest</param>-->
                         <param>com.graphhopper.util.HelperTest</param>
+
+<!--                        Nouveaux tests. Décommentez pour les inclure dans le prochain test-compile
+                            pour le calcul du score de mutation. -->
+                        <param>com.graphhopper.util.ArrayUtilExtraTest</param>
+                        <param>com.graphhopper.util.DistanceCalcEuclideanExtraTest</param>
+                        <param>com.graphhopper.util.HelperExtraTest</param>
                     </targetTests>
                 </configuration>
             </plugin>
