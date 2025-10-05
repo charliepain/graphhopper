@@ -1,8 +1,8 @@
 package com.graphhopper.util;
 
 import com.carrotsearch.hppc.IntArrayList;
-import org.junit.jupiter.api.Test;
 
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ArrayUtilExtraTest {
