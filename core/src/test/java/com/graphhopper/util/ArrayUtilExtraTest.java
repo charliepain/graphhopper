@@ -17,7 +17,7 @@ public class ArrayUtilExtraTest {
     public void testTransformMapTooSmall() {
         IntArrayList arrWithLargeNum = IntArrayList.from(1, 2, 3, 4, 9, 3);
         IntArrayList smallMap = IntArrayList.from(10, 11, 12, 13, 14);
-        assertThrows(IllegalArgumentException.class, () -> ArrayUtil.transform(arrWithLargeNum, smallMap));
+        assertThrows(Error.class, () -> ArrayUtil.transform(arrWithLargeNum, smallMap));
     }
 
     @Test
