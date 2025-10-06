@@ -135,5 +135,5 @@ Le test [`testMergeSameElems()`](core/src/test/java/com/graphhopper/util/ArrayUt
 qu'on a ajouté teste deux tableaux de même taille, mais elles ne sont pas vides.
 L'appel ne retourne donc pas un tableau vide avec la condition non mutée, mais il reoturne un tableau
 vide avec la condition mutée. Le mutant cause donc un échec du test. Ainsi, on parvient à détecter
-un nouveau mutant.
+un nouveau mutant.  
 2. Deuxième mutant détecté...
