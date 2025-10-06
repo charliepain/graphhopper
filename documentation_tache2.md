@@ -131,10 +131,30 @@ causer un échec si la condition est muté.
 Cependant, avec mutation ou non, l'appel avec deux tableaux vides (et donc deux tableaux de même taille)
 retourne un tableau vide dans les deux cas, ce qui est le résultat attendu.
 Donc, le test passe dans les deux cas. Aucun des tests échoue avec l'introduction du mutant.
-Le test [`testMergeSameElems()`](core/src/test/java/com/graphhopper/util/ArrayUtilExtraTest.java)
+Le test [`testMergeSameElems()`](core/src/test/java/com/graphhopper/util/ArrayUtilExtraTest.java) 
 qu'on a ajouté teste deux tableaux de même taille, mais elles ne sont pas vides.
 L'appel ne retourne donc pas un tableau vide avec la condition non mutée, mais il reoturne un tableau
 vide avec la condition mutée. Le mutant cause donc un échec du test. Ainsi, on parvient à détecter
 un nouveau mutant.  
+  
 
 2. Deuxième mutant détecté...
+
+### Test java-faker
+[`testCamelCaseToUnderScoreWithFaker()`](web-api/src/test/java/com/graphhopper/util/HelperExtraTest.java)  
+Ce test vérifie 50 appels de
+[`camelCaseToUnderScore(String key)`](web-api/src/main/java/com/graphhopper/util/Helper.java).
+Les appels se font sur des noms complets en camelCase qui ont été généré à l'aide de java-faker.
+On a les noms complets comme données, car ce sont des données réalistes qui pourraient apparaître
+dans un usage réelle et les noms ont une certaine structure prédictible. 
+Les lettres majuscules des noms sont normalement en début du nom et après
+chaque espace dans le nom. Ce motif prédictible dans les noms facilite la manipulation pour
+produire des chaînes en camelCase et des chaînes avec des underscores. Cela aide à créer l'oracle
+qui peut généraliser pour une grande quantité de données et non un seul cas.
+java-faker est bien conçu pour générer des données liées aux noms.
+On a utilisé java-faker pour générer des prénoms et noms et former des noms complets à partir de
+ceux-ci après un traitement, car certains noms complets générés par java-faker contiennent des
+majuscules qui ne sont pas précédées d'un espace. Une graine aléatoire a été fournie comme
+argument au `Faker` pour assurer la reproductibilité. Des manipulations ont été faites pour obtenir
+les formats camelCase et underscore de chaque nom. Un fichier contenant les données et résultats
+attendus est généré à de l'exécution du test pour pouvoir valider les cas de tests.
