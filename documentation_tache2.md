@@ -146,9 +146,9 @@ Ce test vérifie 50 appels de
 [`camelCaseToUnderScore(String key)`](web-api/src/main/java/com/graphhopper/util/Helper.java).
 Les appels se font sur des noms complets en camelCase qui ont été généré à l'aide de java-faker.
 On a les noms complets comme données, car ce sont des données réalistes qui pourraient apparaître
-dans un usage réelle et les noms ont une certaine structure prédictible. 
+dans un usage réelle et les noms ont une certaine structure commune. 
 Les lettres majuscules des noms sont normalement en début du nom et après
-chaque espace dans le nom. Ce motif prédictible dans les noms facilite la manipulation pour
+chaque espace dans le nom. Ce motif commune dans les noms facilite la manipulation pour
 produire des chaînes en camelCase et des chaînes avec des underscores. Cela aide à créer l'oracle
 qui peut généraliser pour une grande quantité de données et non un seul cas.
 java-faker est bien conçu pour générer des données liées aux noms.
