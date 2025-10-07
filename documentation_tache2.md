@@ -147,14 +147,23 @@ Ce test vérifie 50 appels de
 Les appels se font sur des noms complets en camelCase qui ont été généré à l'aide de java-faker.
 On a les noms complets comme données, car ce sont des données réalistes qui pourraient apparaître
 dans un usage réelle et les noms ont une certaine structure commune. 
-Les lettres majuscules des noms sont normalement en début du nom et après
-chaque espace dans le nom. Ce motif commune dans les noms facilite la manipulation pour
-produire des chaînes en camelCase et des chaînes avec des underscores. Cela aide à créer l'oracle
-qui peut généraliser pour une grande quantité de données et non un seul cas.
-java-faker est bien conçu pour générer des données liées aux noms.
-On a utilisé java-faker pour générer des prénoms et noms et former des noms complets à partir de
-ceux-ci après un traitement, car certains noms complets générés par java-faker contiennent des
-majuscules qui ne sont pas précédées d'un espace. Une graine aléatoire a été fournie comme
-argument au `Faker` pour assurer la reproductibilité. Des manipulations ont été faites pour obtenir
-les formats camelCase et underscore de chaque nom. Un fichier contenant les données et résultats
-attendus est généré à de l'exécution du test pour pouvoir valider les cas de tests.
+## Test avec Java-Faker
+
+### 8. testShuffleWithJavaFaker()
+
+**Intention du test :** Tester la méthode `shuffle` avec des données aléatoires générées par Java-Faker pour vérifier que le mélange fonctionne correctement avec des valeurs variées.
+
+**Motivation des données de test :** 
+- Utilisation de Java-Faker pour générer des tailles aléatoires (5-20 éléments) et des valeurs aléatoires (-100 à 100)
+- Cela permet de tester le comportement de `shuffle` avec des données imprévisibles et variées
+- Les données aléatoires augmentent la probabilité de détecter des erreurs dans l'algorithme de mélange
+
+**Explication de l'oracle :**
+1. **Taille préservée :** La liste mélangée doit avoir exactement la même taille que l'originale
+2. **Éléments préservés :** Tous les éléments de la liste originale doivent être présents dans la liste mélangée
+3. **Ordre modifié :** Avec des données aléatoires et une taille suffisante (≥5), l'ordre devrait probablement changer après le mélange
+4. **Reproductibilité :** Utilisation d'un Random avec seed fixe (12345) pour assurer la reproductibilité des tests
+
+**Utilisation de Java-Faker :**
+- `faker.number().numberBetween(5, 21)` : Génère une taille aléatoire entre 5 et 20
+- `faker.number().numberBetween(-100, 101)` : Génère des valeurs aléatoires entre -100 et 100
