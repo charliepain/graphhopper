@@ -114,6 +114,7 @@ Le score de mutation a augmenté, donc les nouveaux tests ont découvert des mut
 Beaucoup trop de mutants ont été détectés pour qu'on puisse tous les analyser.
 On va analyser 2 de ces mutants, car l'énoncé demande d'ajouter des tests jusqu'à
 obtenir 2 nouveaux mutants si on en avait pas trouvé.
+
 1. ArrayUtil.java ligne 244: Replaced integer addition with subtraction  
 Avant les nouveaux tests:
 <img title="a title" alt="Alt text" src="mutations/images/mutant1_original.png">
@@ -138,7 +139,30 @@ vide avec la condition mutée. Le mutant cause donc un échec du test. Ainsi, on
 un nouveau mutant.  
   
 
-2. Deuxième mutant détecté...
+2. Helper.java ligne 199: Replaced return value with ""  
+La mutation se produit sur la valeur de retour dans la méthode [`Helper.pruneFileEnd(String file)`](web-api/src/main/java/com/graphhopper/util/Helper.java).
+**Avant les tests:**
+```
+197 1. negated conditional → NO_COVERAGE
+
+    2. changed conditional boundary → NO_COVERAGE
+```
+**Apres les tests**
+```
+198  1. replaced return value with "" for com/graphhopper/util/Helper::pruneFileEnd → NO_COVERAGE
+
+199  1. replaced return value with "" for com/graphhopper/util/Helper::pruneFileEnd → KILLED
+```
+La ligne non mutée retourne `file.substring(0, index)`, c'est-à-dire le nom de fichier sans l'extension. 
+La ligne mutée retourne une chaîne vide `""` au lieu du résultat de `substring`.
+Parmi les tests (assert) originaux, aucun ne teste la méthode `pruneFileEnd()`. 
+Le mutant n'avait donc aucune couverture (NO_COVERAGE).
+Le test [`testPruneFileEndTwoDots()`](web-api/src/test/java/com/graphhopper/util/HelperExtraTest.java) 
+qu'on a ajouté teste un nom de fichier avec deux points : `"c_program.c.txt"`.
+Avec la ligne non mutée, l'appel retourne `"c_program.c"` (l'extension `.txt` est enlevée).
+Avec la ligne mutée, l'appel retourne une chaîne vide `""` au lieu de `"c_program.c"`.
+Le test vérifie que le résultat égale `"c_program.c"`, mais reçoit `""` avec le mutant.
+Le mutant cause donc un échec du test. Ainsi, on parvient à détecter un nouveau mutant.
 
 ### Test java-faker
 [`testCamelCaseToUnderScoreWithFaker()`](web-api/src/test/java/com/graphhopper/util/HelperExtraTest.java)  
