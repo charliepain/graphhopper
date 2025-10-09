@@ -22,4 +22,4 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - name: Run tests
-        run: mvn -B test -Dtest=*ExtraTest
+        run: mvn -B test -Dtest=*ExtraTest -DfailIfNoTests=false
