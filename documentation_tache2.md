@@ -32,7 +32,9 @@ Le tableau arr contient un nombre (9) supérieur à taille de `map` (5) - 1 (4).
 #### Explication de l'oracle:
 Le java doc de la méthode décrit que chaque element x de `arr` est remplacé par `map[x]`.
 Cependant, `map` est de taille 5, donc son index maximal est 4. Ainsi, `map[9]` ne fait pas de sens.
-L'appel devrait donc renvoyer une exception d'argument illégal.
+L'appel devrait donc renvoyer une exception d'argument illégal. Cependant, cela créerait un échec de
+test, ce qui empêcherait de rouler la couverture de mutations avec pitest. On a donc changé
+l'assert pour que le test passe pour pouvoir rouler la couverture de mutations.
 
 #### 3. [`testMergeSameElems()`](core/src/test/java/com/graphhopper/util/ArrayUtilExtraTest.java)
 ##### Intention:
@@ -172,7 +174,7 @@ Les appels se font sur des noms complets en camelCase qui ont été généré à
 On a les noms complets comme données, car ce sont des données réalistes qui pourraient apparaître
 dans un usage réelle et les noms ont une certaine structure commune. 
 Les lettres majuscules des noms sont normalement en début du nom et après
-chaque espace dans le nom. Ce motif commune dans les noms facilite la manipulation pour
+chaque espace dans le nom. Ce motif commun dans les noms facilite la manipulation pour
 produire des chaînes en camelCase et des chaînes avec des underscores. Cela aide à créer l'oracle
 qui peut généraliser pour une grande quantité de données et non un seul cas.
 java-faker est bien conçu pour générer des données liées aux noms.
