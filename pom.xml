@@ -17,6 +17,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <maven.compiler.target>17</maven.compiler.target>
+        <argLine></argLine>
 
         <!-- We always had this disabled as it is disabled by default in debian JDK builds, but when we
              switched to another JDK on travis it was enabled implicitly. Our javadocs are not ready for this
@@ -209,7 +210,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.22.2</version>
                     <configuration>
-                        <argLine>@{argLine} -Xmx190m -Xms190m -Duser.language=en</argLine>
+                        <argLine>${argLine} -Xmx190m -Xms190m -Duser.language=en</argLine>
                     </configuration>
                 </plugin>
 
@@ -308,38 +309,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-
-            <!-- tache2 plugins -->
-            <plugin>
-                <groupId>org.pitest</groupId>
-                <artifactId>pitest-maven</artifactId>
-                <version>1.20.4</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.pitest</groupId>
-                        <artifactId>pitest-junit5-plugin</artifactId>
-                        <version>1.2.3</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <targetClasses>
-                        <param>com.graphhopper.util.ArrayUtil</param>
-                        <param>com.graphhopper.util.DistanceCalcEuclidean</param>
-                        <param>com.graphhopper.util.Helper</param>
-                    </targetClasses>
-                    <targetTests>
-                        <param>com.graphhopper.util.ArrayUtilTest</param>
-                        <param>com.graphhopper.util.DistanceCalcEuclideanTest</param>
-                        <param>com.graphhopper.util.HelperTest</param>
-
-<!--                        Nouveaux tests. Décommentez pour les inclure dans le prochain test-compile
-                            pour le calcul du score de mutation. -->
-                        <param>com.graphhopper.util.ArrayUtilExtraTest</param>
-                        <param>com.graphhopper.util.DistanceCalcEuclideanExtraTest</param>
-                        <param>com.graphhopper.util.HelperExtraTest</param>
-                    </targetTests>
-                </configuration>
             </plugin>
 
         </plugins>
