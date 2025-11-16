@@ -38,6 +38,7 @@ jobs:
             exit 0
           fi
 
+
           cd core
           mvn -B test-compile org.pitest:pitest-maven:mutationCoverage
           CURRENT_SCORE=$(python3 .github/scripts/extract_mutation_score.py target/pit-reports)
