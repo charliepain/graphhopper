@@ -11,9 +11,5 @@ Pour garantir que les contributions ne fassent pas régresser le score de mutati
 - **Tolérance aux premiers commits** : si l’historique ne contient pas de commit précédent, le script affiche un message et saute la comparaison pour ne pas bloquer une première contribution.
 - **Seuil de comparaison** : la comparaison autorise une marge flottante minimale (`1e-6`) afin d’éviter les échecs causés par des arrondis.
 
-## Validation
 
-- La modification n’a pas été exécutée localement (le pipeline GitHub Actions la validera lors de la prochaine exécution).
-- Les scripts ont été relus statiquement : la linter interne de Cursor ne signale aucun problème.
-- Prochaine étape recommandée : pousser une branche de test pour déclencher le workflow et vérifier que la comparaison de scores se comporte comme prévu (succès quand le score reste stable ou augmente, échec lorsqu’il baisse).
 
