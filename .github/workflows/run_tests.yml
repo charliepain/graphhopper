@@ -37,11 +37,13 @@ jobs:
             exit 0
           fi
 
-          mvn -B clean org.pitest:pitest-maven:mutationCoverage
+          cd core
+          mvn -B test-compile org.pitest:pitest-maven:mutationCoverage
           CURRENT_SCORE=$(python3 .github/scripts/extract_mutation_score.py target/pit-reports)
 
           git checkout "$PREVIOUS_COMMIT"
-          mvn -B clean org.pitest:pitest-maven:mutationCoverage
+          cd core
+          mvn -B test-compile org.pitest:pitest-maven:mutationCoverage
           PREVIOUS_SCORE=$(python3 .github/scripts/extract_mutation_score.py target/pit-reports)
 
           git checkout "$CURRENT_COMMIT"
