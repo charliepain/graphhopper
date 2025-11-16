@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - CreateTests
+      - githubactions-actions-pitest
 
 jobs:
   run-tests:
