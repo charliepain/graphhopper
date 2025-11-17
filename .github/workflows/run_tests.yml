@@ -26,6 +26,9 @@ jobs:
       - name: Run tests
         run: mvn -B test -Dtest=*ExtraTest -DfailIfNoTests=false
 
+      - name: Build all modules
+        run: mvn -B install -DskipTests
+
       - name: Fail if mutation score regresses
         run: |
           set -e
@@ -37,13 +40,43 @@ jobs:
             exit 0
           fi
 
-          mvn -B clean org.pitest:pitest-maven:mutationCoverage
-          CURRENT_SCORE=$(python3 .github/scripts/extract_mutation_score.py target/pit-reports)
+          # Run pitest on web-api module
+          cd web-api
+          mvn -B test-compile org.pitest:pitest-maven:mutationCoverage
+          CURRENT_WEB_API_SCORE=$(python3 ../.github/scripts/extract_mutation_score.py target/pit-reports)
+          cd ..
 
+          # Run pitest on core module
+          cd core
+          mvn -B test-compile org.pitest:pitest-maven:mutationCoverage
+          CURRENT_CORE_SCORE=$(python3 ../.github/scripts/extract_mutation_score.py target/pit-reports)
+          cd ..
+
+          # Checkout previous commit and build
+          cd "$GITHUB_WORKSPACE"
           git checkout "$PREVIOUS_COMMIT"
-          mvn -B clean org.pitest:pitest-maven:mutationCoverage
-          PREVIOUS_SCORE=$(python3 .github/scripts/extract_mutation_score.py target/pit-reports)
+          mvn -B install -DskipTests
 
+          # Run pitest on web-api module (previous commit)
+          cd web-api
+          mvn -B test-compile org.pitest:pitest-maven:mutationCoverage
+          PREVIOUS_WEB_API_SCORE=$(python3 ../.github/scripts/extract_mutation_score.py target/pit-reports)
+          cd ..
+
+          # Run pitest on core module (previous commit)
+          cd core
+          mvn -B test-compile org.pitest:pitest-maven:mutationCoverage
+          PREVIOUS_CORE_SCORE=$(python3 ../.github/scripts/extract_mutation_score.py target/pit-reports)
+          cd ..
+
+          # Checkout back to current commit
+          cd "$GITHUB_WORKSPACE"
           git checkout "$CURRENT_COMMIT"
 
-          python3 .github/scripts/compare_mutation_scores.py "$PREVIOUS_SCORE" "$CURRENT_SCORE"
+          # Compare scores for web-api module
+          echo "Comparing web-api module scores..."
+          python3 .github/scripts/compare_mutation_scores.py "$PREVIOUS_WEB_API_SCORE" "$CURRENT_WEB_API_SCORE"
+
+          # Compare scores for core module
+          echo "Comparing core module scores..."
+          python3 .github/scripts/compare_mutation_scores.py "$PREVIOUS_CORE_SCORE" "$CURRENT_CORE_SCORE"
