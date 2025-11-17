@@ -40,17 +40,11 @@ jobs:
             exit 0
           fi
 
-<<<<<<< HEAD
           # Run pitest on web-api module
           cd web-api
           mvn -B test-compile org.pitest:pitest-maven:mutationCoverage
           CURRENT_WEB_API_SCORE=$(python3 ../.github/scripts/extract_mutation_score.py target/pit-reports)
           cd ..
-=======
-          cd core
-          mvn -B test-compile org.pitest:pitest-maven:mutationCoverage
-          CURRENT_SCORE=$(python3 .github/scripts/extract_mutation_score.py target/pit-reports)
->>>>>>> 3cf79120a928e1ffd937f5640ffc92f7a1aadb7e
 
           # Run pitest on core module
           cd core
@@ -61,12 +55,7 @@ jobs:
           # Checkout previous commit and build
           cd "$GITHUB_WORKSPACE"
           git checkout "$PREVIOUS_COMMIT"
-<<<<<<< HEAD
           mvn -B install -DskipTests
-=======
-          mvn -B test-compile org.pitest:pitest-maven:mutationCoverage
-          PREVIOUS_SCORE=$(python3 .github/scripts/extract_mutation_score.py target/pit-reports)
->>>>>>> 3cf79120a928e1ffd937f5640ffc92f7a1aadb7e
 
           # Run pitest on web-api module (previous commit)
           cd web-api
@@ -84,7 +73,6 @@ jobs:
           cd "$GITHUB_WORKSPACE"
           git checkout "$CURRENT_COMMIT"
 
-<<<<<<< HEAD
           # Compare scores for web-api module
           echo "Comparing web-api module scores..."
           python3 .github/scripts/compare_mutation_scores.py "$PREVIOUS_WEB_API_SCORE" "$CURRENT_WEB_API_SCORE"
@@ -92,6 +80,3 @@ jobs:
           # Compare scores for core module
           echo "Comparing core module scores..."
           python3 .github/scripts/compare_mutation_scores.py "$PREVIOUS_CORE_SCORE" "$CURRENT_CORE_SCORE"
-=======
-          python3 .github/scripts/compare_mutation_scores.py "$PREVIOUS_SCORE" "$CURRENT_SCORE"
->>>>>>> 3cf79120a928e1ffd937f5640ffc92f7a1aadb7e
