@@ -26,8 +26,12 @@ jobs:
       - name: Run tests
         run: mvn -B test -Dtest=*ExtraTest -DfailIfNoTests=false
 
-      - name: Build all modules
-        run: mvn -B install -DskipTests
+      - name: Build required modules for pitest
+        run: |
+          # Build only the modules needed for pitest (web-api and core)
+          # web-api must be built first since core depends on it
+          mvn -B install -DskipTests -pl web-api -am
+          mvn -B install -DskipTests -pl core -am
 
       - name: Fail if mutation score regresses
         run: |
@@ -55,7 +59,9 @@ jobs:
           # Checkout previous commit and build
           cd "$GITHUB_WORKSPACE"
           git checkout "$PREVIOUS_COMMIT"
-          mvn -B install -DskipTests
+          # Build only the modules needed for pitest
+          mvn -B install -DskipTests -pl web-api -am
+          mvn -B install -DskipTests -pl core -am
 
           # Run pitest on web-api module (previous commit)
           cd web-api
