@@ -32,6 +32,33 @@ jobs:
         if: steps.tests.outcome == 'failure'
         uses: TejasvOnly/random-rickroll@v1.0
 
+      - name: Comment RickRoll GIF on commit / PR
+        if: steps.tests.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const gifUrl = '${{ steps.rickroll.outputs.gif_url }}';
+            const body = `❌ Tests failed. Here's a RickRoll for you:\n\n![RickRoll](${gifUrl})`;
+
+            if (context.payload.pull_request) {
+              // On a PR
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body,
+              });
+            } else {
+              // On a push (comment on commit)
+              await github.rest.repos.createCommitComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                commit_sha: context.sha,
+                body,
+              });
+            }
+
       - name: Build required modules for pitest
         run: |
           # Build only the modules needed for pitest (web-api and core)
