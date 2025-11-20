@@ -25,7 +25,6 @@ public class ArrayUtilExtraTest {
         int[] arr1 = {-2, -1, 0, 1, 2};
         int[] arrWithSameElems = arr1.clone();
         assertArrayEquals(arr1, ArrayUtil.merge(arr1, arrWithSameElems));
-//        assertEquals(0, 1);
     }
 
 }
