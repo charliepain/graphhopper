@@ -38,7 +38,7 @@ jobs:
         with:
 #          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const gifUrl = 'rickroll.gif';
+            const gifUrl = 'rickroll/rickroll.gif';
             const body = `❌ Tests failed. Here's a RickRoll for you:\n\n![RickRoll](${gifUrl})`;
 
             if (context.payload.pull_request) {
