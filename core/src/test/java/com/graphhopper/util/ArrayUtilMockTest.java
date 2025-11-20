@@ -1,20 +1,4 @@
-/*
- *  Licensed to GraphHopper GmbH under one or more contributor
- *  license agreements. See the NOTICE file distributed with this work for
- *  additional information regarding copyright ownership.
- *
- *  GraphHopper GmbH licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except in
- *  compliance with the License. You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- */
+
 package com.graphhopper.util;
 
 import com.carrotsearch.hppc.IntArrayList;
@@ -29,15 +13,15 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
- * Tests for ArrayUtil class using mocks to isolate dependencies.
+ * Tests for ArrayUtil using Mockito mocks.
  * 
- * This test class demonstrates the use of Mockito to mock external dependencies
- * (Random) to test ArrayUtil methods in isolation and ensure deterministic behavior.
+ * Using Mockito to mock the Random class so we can control what values it returns.
+ * This makes tests deterministic - instead of getting different random numbers each time,
+ * we can specify exactly what the mock should return and verify the code works correctly.
  * 
  * Mocked class: Random
- * Reason: We mock Random to control the shuffle behavior deterministically.
- * By controlling the random values, we can verify that the shuffle algorithm
- * works correctly without relying on non-deterministic random behavior.
+ * Reason: Random produces different values each time, making tests unpredictable.
+ * By mocking it, we can control the values and test that shuffle works properly.
  */
 @ExtendWith(MockitoExtension.class)
 public class ArrayUtilMockTest {
@@ -48,34 +32,31 @@ public class ArrayUtilMockTest {
     /**
      * Test shuffle method with mocked Random.
      * 
-     * This test verifies that ArrayUtil.shuffle correctly shuffles an IntArrayList
-     * using a Random number generator. We mock Random to control the shuffle behavior
-     * and ensure deterministic test results.
+     * Tests that ArrayUtil.shuffle works correctly when we control what Random returns.
+     * This makes the test deterministic instead of relying on actual random values.
      */
     @Test
     public void testShuffleWithMockedRandom() {
-        // Arrange: Create an IntArrayList and configure mock Random behavior
-        IntArrayList list = ArrayUtil.iota(10); // Creates [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        // Create a list with values 0-9
+        IntArrayList list = ArrayUtil.iota(10);
 
-        // Configure mock Random to return specific values for deterministic shuffling
-        // The shuffle algorithm uses: random.nextInt(maxHalf) + maxHalf
-        // For size 10, maxHalf = 5, so it will call nextInt(5) + 5, returning values in [5, 9]
-        when(mockRandom.nextInt(5)).thenReturn(2, 1, 3, 0, 2); // These will become 7, 6, 8, 5, 7
+        // Set up the mock to return specific values when nextInt is called
+        // Looking at the shuffle code, it calls nextInt(maxHalf) where maxHalf = size/2
+        // For size 10, maxHalf is 5, so it calls nextInt(5) and adds 5 to get indices in [5, 9]
+        when(mockRandom.nextInt(5)).thenReturn(2, 1, 3, 0, 2);
 
-        // Act: Call the method under test
+        // Call shuffle with the mocked Random
         IntArrayList result = ArrayUtil.shuffle(list, mockRandom);
 
-        // Assert: Verify the list was modified (shuffled)
-        assertSame(list, result); // Should return the same list instance
+        // Check that shuffle returns the same list object (modifies in place)
+        assertSame(list, result);
         assertEquals(10, result.size());
         
-        // Verify that Random.nextInt was called the expected number of times
-        // For size 10, maxHalf = 5, so it should be called 5 times
+        // Verify that nextInt was called exactly 5 times (once for each element in first half)
         verify(mockRandom, times(5)).nextInt(5);
         
-        // Verify that the list elements are still the same values (just reordered)
-        // We can't predict exact order due to in-place swapping, but we can verify
-        // that all original values are still present
+        // Check that all original values are still present, just in different order
+        // Can't check exact order since it depends on the swapping, but all numbers should be there
         for (int i = 0; i < 10; i++) {
             assertTrue(result.contains(i), "Result should contain " + i);
         }
@@ -84,24 +65,24 @@ public class ArrayUtilMockTest {
     /**
      * Test permutation method with mocked Random.
      * 
-     * This test verifies that ArrayUtil.permutation correctly creates a permutation
-     * using a Random number generator. We mock Random to control the behavior deterministically.
+     * Tests that ArrayUtil.permutation creates a valid permutation when we control Random.
+     * The permutation method uses shuffle internally, so we need to mock Random for that too.
      */
     @Test
     public void testPermutationWithMockedRandom() {
-        // Arrange: Configure mock Random behavior
+        // Set up mock to return specific values
         when(mockRandom.nextInt(5)).thenReturn(1, 0, 2, 1, 0);
 
-        // Act: Call the method under test
+        // Call permutation - should create a list of size 10 with numbers 0-9 in random order
         IntArrayList result = ArrayUtil.permutation(10, mockRandom);
 
-        // Assert: Verify the result
+        // Check the size is correct
         assertEquals(10, result.size());
         
-        // Verify that Random.nextInt was called (shuffle is called internally)
+        // Verify that Random was actually used (permutation calls shuffle which uses Random)
         verify(mockRandom, atLeastOnce()).nextInt(anyInt());
         
-        // Verify it's a valid permutation
+        // Make sure the result is a valid permutation (contains all numbers 0-9, no duplicates)
         assertTrue(ArrayUtil.isPermutation(result), "Result should be a valid permutation");
     }
 
