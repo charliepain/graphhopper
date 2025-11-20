@@ -38,7 +38,7 @@ jobs:
         with:
 #          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const body = `❌ Tests failed. Here's a RickRoll for you:\n ![Rickroll](rickroll/rickroll.gif)`;
+            const body = `❌ Tests failed. Here's a RickRoll for you:\n ![Rickroll](https://raw.githubusercontent.com/charliepain/graphhopper/af7981f933f355980a0f64b4bc274f2ed6a11479/rickroll/rickroll.gif)`;
 
             if (context.payload.pull_request) {
               // On a PR
