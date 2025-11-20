@@ -28,9 +28,9 @@ jobs:
         run: mvn -B test -Dtest=*ExtraTest -DfailIfNoTests=false
         continue-on-error: true
 
-      - name: Random RickRoll
-        if: steps.tests.outcome == 'failure'
-        uses: TejasvOnly/random-rickroll@v1.0
+#      - name: Random RickRoll
+#        if: steps.tests.outcome == 'failure'
+#        uses: TejasvOnly/random-rickroll@v1.0
 
       - name: Comment RickRoll GIF on commit / PR
         if: steps.tests.outcome == 'failure'
