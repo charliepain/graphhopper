@@ -79,7 +79,10 @@ jobs:
 
           # Run pitest on core module
           cd core
-          mvn -B test-compile org.pitest:pitest-maven:mutationCoverage
+          if ! mvn -B test-compile org.pitest:pitest-maven:mutationCoverage; then
+            echo "pitest failed on the previous commit. No comparison can be made."
+            exit 0
+          fi
           CURRENT_CORE_SCORE=$(python3 ../.github/scripts/extract_mutation_score.py target/pit-reports)
           cd ..
 
