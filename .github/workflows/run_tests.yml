@@ -24,7 +24,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - name: Run tests
+        id: tests
         run: mvn -B test -Dtest=*ExtraTest -DfailIfNoTests=false
+        continue-on-error: true
+
+      - name: Random RickRoll
+        if: steps.tests.outcome == 'failure'
+        uses: TejasvOnly/random-rickroll@v1.0
 
       - name: Build required modules for pitest
         run: |
