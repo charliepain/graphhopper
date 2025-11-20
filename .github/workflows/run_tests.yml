@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - CreateTests
+      - rickroll
 
 jobs:
   run-tests:
@@ -25,6 +26,12 @@ jobs:
             ${{ runner.os }}-maven-
       - name: Run tests
         run: mvn -B test -Dtest=*ExtraTest -DfailIfNoTests=false
+
+      - name: Rickroll
+        if: failure()
+        steps:
+          - name: Random RickRoll
+            uses: TejasvOnly/random-rickroll@v1.0
 
       - name: Build required modules for pitest
         run: |
