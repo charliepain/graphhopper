@@ -16,7 +16,7 @@ Lien au commit associé: https://github.com/charliepain/graphhopper/commit/90fb5
 Lien au workflow : https://github.com/charliepain/graphhopper/actions/runs/19485028991/job/55765315230
 <img title="a title" alt="Alt text" src="tache3_images/workflow_fail.png">
 
-## Documentation des tests avec mocks (ArrayUtilMockTest)
+## Documentation des tests avec mocks (ArrayUtilSimpleMockTest)
 
 ### Choix des classes testées
 
@@ -34,27 +34,32 @@ La classe `ArrayUtil` a été choisie pour les tests avec mocks pour les raisons
 
 ### Choix des classes simulées
 
-**Classe simulée : `java.util.Random`**
+**Classes simulées : `java.util.Random` et `java.util.List`**
 
-La classe `Random` a été choisie pour être simulée (mockée) pour les raisons suivantes :
+Deux classes sont mockées dans `ArrayUtilSimpleMockTest` :
 
-1. **Source de non-déterminisme** : `Random` produit des valeurs différentes à chaque appel, rendant les tests non-reproductibles. En mockant cette classe, nous pouvons contrôler exactement quelles valeurs sont retournées, rendant les tests déterministes.
+1. **`Random`** - Choisie pour être simulée (mockée) pour les raisons suivantes :
+   - **Source de non-déterminisme** : `Random` produit des valeurs différentes à chaque appel, rendant les tests non-reproductibles. En mockant cette classe, nous pouvons contrôler exactement quelles valeurs sont retournées, rendant les tests déterministes.
+   - **Dépendance externe** : `Random` est une dépendance externe au code métier de `ArrayUtil`. Selon les principes de test unitaire, les dépendances externes doivent être isolées pour tester uniquement la logique de la classe sous test.
+   - **Facilité de vérification** : Mockito permet de vérifier que `Random.nextInt()` est appelé le bon nombre de fois avec les bons paramètres, ce qui valide que l'algorithme de `shuffle` utilise correctement le générateur aléatoire.
 
-2. **Dépendance externe** : `Random` est une dépendance externe au code métier de `ArrayUtil`. Selon les principes de test unitaire, les dépendances externes doivent être isolées pour tester uniquement la logique de la classe sous test.
-
-3. **Facilité de vérification** : Mockito permet de vérifier que `Random.nextInt()` est appelé le bon nombre de fois avec les bons paramètres, ce qui valide que l'algorithme de `shuffle` utilise correctement le générateur aléatoire.
-
-4. **Analyse de l'algorithme** : En examinant le code de `ArrayUtil.shuffle()` (lignes 116-125), on observe que la méthode appelle `random.nextInt(maxHalf)` où `maxHalf = list.size() / 2`. Pour une liste de taille 10, cela signifie 5 appels à `nextInt(5)`. Le mock permet de valider ce comportement exact.
+2. **`List<Integer>`** - Choisie pour être simulée pour les raisons suivantes :
+   - **Interface simple et accessible** : `List` est une interface Java standard, facile à comprendre et à mocker
+   - **Démonstration pédagogique** : Permet de démontrer le mockage d'une interface de collection de manière simple
+   - **Accessibilité** : Plus accessible pour un étudiant que des interfaces complexes de GraphHopper
 
 ### Définition des mocks
 
-**Configuration du mock :**
+**Configuration des mocks :**
 
 ```java
 @ExtendWith(MockitoExtension.class)
-public class ArrayUtilMockTest {
+public class ArrayUtilSimpleMockTest {
     @Mock
-    private Random mockRandom;
+    private Random mockRandom;        // Classe mockée #1
+    
+    @Mock
+    private List<Integer> mockList;   // Classe mockée #2
 }
 ```
 
@@ -62,22 +67,25 @@ public class ArrayUtilMockTest {
 
 1. **Annotation `@ExtendWith(MockitoExtension.class)`** : Cette annotation active l'intégration de Mockito avec JUnit 5, permettant l'injection automatique des mocks annotés avec `@Mock`.
 
-2. **Annotation `@Mock`** : Cette annotation crée automatiquement un mock de la classe `Random`. Le mock est créé avant chaque test et réinitialisé, garantissant l'isolation entre les tests.
+2. **Annotation `@Mock`** : Cette annotation crée automatiquement un mock de la classe ou interface. Le mock est créé avant chaque test et réinitialisé, garantissant l'isolation entre les tests.
 
 3. **Avantages de cette approche** :
-   - **Simplicité** : Pas besoin de créer manuellement le mock avec `Mockito.mock(Random.class)`
+   - **Simplicité** : Pas besoin de créer manuellement les mocks avec `Mockito.mock()`
    - **Lisibilité** : L'intention est claire grâce à l'annotation
-   - **Maintenance** : Si la signature de `Random` change, Mockito détectera les problèmes au moment de la compilation
+   - **Maintenance** : Si les signatures changent, Mockito détectera les problèmes au moment de la compilation
 
-**Configuration des comportements du mock :**
+**Configuration des comportements des mocks :**
 
-Dans les tests, le comportement du mock est défini avec `when().thenReturn()` :
+Dans les tests, le comportement des mocks est défini avec `when().thenReturn()` :
 
 ```java
+// Mock Random (classe mockée #1)
 when(mockRandom.nextInt(5)).thenReturn(2, 1, 3, 0, 2);
-```
 
-Cette configuration spécifie que lorsque `nextInt(5)` est appelé, le mock retournera successivement les valeurs 2, 1, 3, 0, et 2.
+// Mock List (classe mockée #2)
+when(mockList.size()).thenReturn(8);
+when(mockList.contains(anyInt())).thenReturn(true);
+```
 
 ### Choix des valeurs simulées
 
@@ -122,16 +130,11 @@ Cette configuration spécifie que lorsque `nextInt(5)` est appelé, le mock reto
 
 4. **Vérification de l'utilisation** : Le test utilise `verify(mockRandom, atLeastOnce()).nextInt(anyInt())` pour s'assurer que le générateur aléatoire est bien utilisé, sans spécifier le nombre exact d'appels (car cela dépend de l'implémentation interne de `shuffle`).
 
-### Résumé des justifications
+#### Test `testPermutationWithRandomAndListMocks()`
 
-| Aspect | Choix | Justification principale |
-|--------|-------|-------------------------|
-| **Classe testée** | `ArrayUtil` | Dépendance à `Random` nécessitant des tests déterministes |
-| **Classe mockée** | `Random` | Source de non-déterminisme à contrôler |
-| **Configuration mock** | `@Mock` avec `MockitoExtension` | Simplicité et intégration JUnit 5 |
-| **Valeurs test 1** | `2, 1, 3, 0, 2` | Couverture variée avec cas limites et répétitions |
-| **Valeurs test 2** | `1, 0, 2, 1, 0` | Scénario alternatif pour validation indépendante |
+**Objectif** : Démontrer l'utilisation des deux classes mockées (`Random` et `List`) dans un même test.
 
-Ces choix permettent de créer des tests unitaires déterministes, reproductibles et maintenables qui améliorent significativement la couverture de mutation des méthodes dépendantes de sources aléatoires.
-
-
+**Justification** :
+- Ce test utilise à la fois `mockRandom` (classe mockée #1) pour créer une permutation via `ArrayUtil.permutation()`
+- Et `mockList` (classe mockée #2) pour démontrer le mockage d'une interface de collection
+- Les deux mocks sont configurés avec `when().thenReturn()` et vérifiés avec `verify()`, démontrant que l'exigence de mocker au moins 2 classes différentes est satisfaite
