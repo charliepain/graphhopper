@@ -20,11 +20,11 @@ public class ArrayUtilExtraTest {
         assertThrows(Error.class, () -> ArrayUtil.transform(arrWithLargeNum, smallMap));
     }
 
-//    @Test
-//    public void testMergeSameElems() {
-//        int[] arr1 = {-2, -1, 0, 1, 2};
-//        int[] arrWithSameElems = arr1.clone();
-//        assertArrayEquals(arr1, ArrayUtil.merge(arr1, arrWithSameElems));
-//    }
+    @Test
+    public void testMergeSameElems() {
+        int[] arr1 = {-2, -1, 0, 1, 2};
+        int[] arrWithSameElems = arr1.clone();
+        assertArrayEquals(arr1, ArrayUtil.merge(arr1, arrWithSameElems));
+    }
 
 }
