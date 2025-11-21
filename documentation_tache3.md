@@ -138,3 +138,6 @@ when(mockList.contains(anyInt())).thenReturn(true);
 - Ce test utilise à la fois `mockRandom` (classe mockée #1) pour créer une permutation via `ArrayUtil.permutation()`
 - Et `mockList` (classe mockée #2) pour démontrer le mockage d'une interface de collection
 - Les deux mocks sont configurés avec `when().thenReturn()` et vérifiés avec `verify()`, démontrant que l'exigence de mocker au moins 2 classes différentes est satisfaite
+
+## Rickroll
+Lorsqu'un push se passe et qu'un cas de test échoue, un commentaire contenant un gif de rickroll est laisser sur le commit associé.
