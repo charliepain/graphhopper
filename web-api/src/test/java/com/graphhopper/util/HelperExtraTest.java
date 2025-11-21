@@ -12,11 +12,11 @@ import java.util.Random;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class HelperExtraTest {
-//    @Test
-//    public void testPruneFileEndTwoDots() {
-//        String fileNameTwoDots = "c_program.c.txt";
-//        assertEquals("c_program.c", Helper.pruneFileEnd(fileNameTwoDots));
-//    }
+    @Test
+    public void testPruneFileEndTwoDots() {
+        String fileNameTwoDots = "c_program.c.txt";
+        assertEquals("c_program.c", Helper.pruneFileEnd(fileNameTwoDots));
+    }
 
     @Test
     public void testKeepInExceedsMax() {
