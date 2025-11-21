@@ -52,7 +52,6 @@ jobs:
                 body,
               });
             }
-            echo "A test case has failed"
 
       - name: Build required modules for pitest
         run: |
