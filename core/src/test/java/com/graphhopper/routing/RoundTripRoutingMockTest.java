@@ -5,6 +5,7 @@ import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.shapes.GHPoint;
+import com.graphhopper.util.shapes.GHPoint3D;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -52,24 +53,24 @@ public class RoundTripRoutingMockTest {
         Snap startSnap = new Snap(startPoint.getLat(), startPoint.getLon());
         startSnap.setClosestNode(100);
         startSnap.setQueryDistance(0.0);
+        // Set snapped point directly (needed because RoundTripRouting.lookup calls getSnappedPoint())
+        startSnap.setSnappedPoint(new GHPoint3D(startPoint.getLat(), startPoint.getLon(), 0.0));
 
-        // Create valid Snaps for intermediate points
-        Snap intermediateSnap1 = new Snap(50.1, 10.1);
-        intermediateSnap1.setClosestNode(101);
-        intermediateSnap1.setQueryDistance(5.0);
-
-        Snap intermediateSnap2 = new Snap(50.2, 10.2);
-        intermediateSnap2.setClosestNode(102);
-        intermediateSnap2.setQueryDistance(5.0);
+        // Create valid Snap for intermediate point
+        // Default Params generates 1 intermediate point (roundTripPointCount = 2, so 2-1 = 1 point)
+        GHPoint intermediatePoint = new GHPoint(50.1, 10.1);
+        Snap intermediateSnap = new Snap(intermediatePoint.getLat(), intermediatePoint.getLon());
+        intermediateSnap.setClosestNode(101);
+        intermediateSnap.setQueryDistance(5.0);
+        // Set snapped point directly (needed because RoundTripRouting.lookup calls getSnappedPoint())
+        intermediateSnap.setSnappedPoint(new GHPoint3D(intermediatePoint.getLat(), intermediatePoint.getLon(), 0.0));
 
         // Set up mock LocationIndex to return our mocked Snaps (classe GraphHopper mockée #1)
-        when(mockLocationIndex.findClosest(eq(startPoint.getLat()), eq(startPoint.getLon()), eq(mockEdgeFilter)))
-                .thenReturn(startSnap);
+        // The lookup method calls findClosest first for the start point, then for intermediate points
+        // We need to ensure the first call returns startSnap, and subsequent calls return intermediateSnap
         when(mockLocationIndex.findClosest(anyDouble(), anyDouble(), eq(mockEdgeFilter)))
-                .thenReturn(intermediateSnap1, intermediateSnap2);
-
-        // Set up mock EdgeFilter to accept all edges (classe GraphHopper mockée #2)
-        when(mockEdgeFilter.accept(any())).thenReturn(true);
+                .thenReturn(startSnap)  // First call for start point
+                .thenReturn(intermediateSnap);  // Subsequent calls for intermediate points
 
         // Create params
         RoundTripRouting.Params params = new RoundTripRouting.Params();
@@ -111,8 +112,9 @@ public class RoundTripRoutingMockTest {
         when(mockLocationIndex.findClosest(eq(startPoint.getLat()), eq(startPoint.getLon()), eq(mockEdgeFilter)))
                 .thenReturn(invalidSnap);
 
-        // Set up mock EdgeFilter (classe GraphHopper mockée #2)
-        when(mockEdgeFilter.accept(any())).thenReturn(true);
+        // Note: We don't stub mockEdgeFilter.accept() because it's never called.
+        // When the snap is invalid, RoundTripRouting.lookup throws an exception immediately
+        // at line 80, before the EdgeFilter would be used.
 
         // Call lookup - should throw PointNotFoundException
         Exception exception = assertThrows(Exception.class, () -> {

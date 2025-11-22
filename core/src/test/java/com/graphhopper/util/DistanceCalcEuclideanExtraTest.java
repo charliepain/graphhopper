@@ -2,8 +2,6 @@ package com.graphhopper.util;
 
 import com.graphhopper.util.shapes.GHPoint;
 import org.junit.jupiter.api.Test;
-import org.locationtech.jts.algorithm.Distance;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class DistanceCalcEuclideanExtraTest {
