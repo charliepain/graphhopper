@@ -16,37 +16,37 @@ Lien au commit associé: https://github.com/charliepain/graphhopper/commit/90fb5
 Lien au workflow : https://github.com/charliepain/graphhopper/actions/runs/19485028991/job/55765315230
 <img title="a title" alt="Alt text" src="tache3_images/workflow_fail.png">
 
-## Documentation des tests avec mocks (ArrayUtilSimpleMockTest)
+## Documentation des tests avec mocks (RoundTripRoutingMockTest)
 
 ### Choix des classes testées
 
-**Classe testée : `ArrayUtil`**
+**Classe testée : `RoundTripRouting`**
 
-La classe `ArrayUtil` a été choisie pour les tests avec mocks pour les raisons suivantes :
+La classe `RoundTripRouting` a été choisie pour les tests avec mocks pour les raisons suivantes :
 
-1. **Dépendance à une source de non-déterminisme** : `ArrayUtil` contient des méthodes (`shuffle` et `permutation`) qui dépendent de la classe `Random` de Java. Cette dépendance introduit un comportement non-déterministe qui complique les tests unitaires traditionnels.
+1. **Dépendances multiples** : `RoundTripRouting` utilise plusieurs dépendances de GraphHopper (`LocationIndex` et `EdgeFilter`) qui nécessitent un graphe réel pour fonctionner. Ces dépendances sont complexes à configurer pour les tests.
 
-2. **Méthodes à tester** : Les méthodes `shuffle` et `permutation` sont des opérations fondamentales pour la manipulation de listes. Elles sont utilisées dans plusieurs contextes du projet GraphHopper et méritent une validation rigoureuse.
+2. **Méthodes à tester** : La méthode `lookup()` est une opération importante pour le calcul de routes en boucle. Elle mérite une validation rigoureuse.
 
-3. **Besoin de tests déterministes** : Contrairement aux tests existants dans `ArrayUtilTest` qui utilisent un `Random` réel avec une graine fixe (lignes 97-98), les tests avec mocks permettent de contrôler précisément les valeurs retournées et de vérifier le comportement exact de l'algorithme.
+3. **Besoin de tests isolés** : Les tests existants nécessitent souvent un graphe réel. Les tests avec mocks permettent de tester la logique de `RoundTripRouting` sans infrastructure de graphe complexe.
 
-4. **Couverture de mutation** : Les méthodes utilisant `Random` sont difficiles à tester exhaustivement sans mocks, car elles produisent des résultats différents à chaque exécution. Les mocks permettent de créer des scénarios de test reproductibles qui améliorent la couverture de mutation.
+4. **Couverture de mutation** : Les mocks permettent de tester des scénarios spécifiques (points valides, points invalides) de manière reproductible, améliorant la couverture de mutation.
 
 ### Choix des classes simulées
 
-**Classes simulées : `java.util.Random` et `java.util.List`**
+**Classes simulées : `LocationIndex` et `EdgeFilter` (2 classes GraphHopper)**
 
-Deux classes sont mockées dans `ArrayUtilSimpleMockTest` :
+Deux classes de GraphHopper sont mockées dans `RoundTripRoutingMockTest` :
 
-1. **`Random`** - Choisie pour être simulée (mockée) pour les raisons suivantes :
-   - **Source de non-déterminisme** : `Random` produit des valeurs différentes à chaque appel, rendant les tests non-reproductibles. En mockant cette classe, nous pouvons contrôler exactement quelles valeurs sont retournées, rendant les tests déterministes.
-   - **Dépendance externe** : `Random` est une dépendance externe au code métier de `ArrayUtil`. Selon les principes de test unitaire, les dépendances externes doivent être isolées pour tester uniquement la logique de la classe sous test.
-   - **Facilité de vérification** : Mockito permet de vérifier que `Random.nextInt()` est appelé le bon nombre de fois avec les bons paramètres, ce qui valide que l'algorithme de `shuffle` utilise correctement le générateur aléatoire.
+1. **`LocationIndex`** (interface `com.graphhopper.storage.index.LocationIndex`) - Choisie pour être simulée pour les raisons suivantes :
+   - **Complexité de configuration** : `LocationIndex` nécessite un graphe réel et un index préparé, ce qui est complexe à mettre en place pour les tests
+   - **Dépendance externe** : C'est une dépendance externe au code métier de `RoundTripRouting`. Selon les principes de test unitaire, les dépendances externes doivent être isolées
+   - **Contrôle des réponses** : Mockito permet de contrôler exactement quels `Snap` sont retournés par `findClosest()`, permettant de tester différents scénarios (points valides, points invalides)
 
-2. **`List<Integer>`** - Choisie pour être simulée pour les raisons suivantes :
-   - **Interface simple et accessible** : `List` est une interface Java standard, facile à comprendre et à mocker
-   - **Démonstration pédagogique** : Permet de démontrer le mockage d'une interface de collection de manière simple
-   - **Accessibilité** : Plus accessible pour un étudiant que des interfaces complexes de GraphHopper
+2. **`EdgeFilter`** (interface `com.graphhopper.routing.util.EdgeFilter`) - Choisie pour être simulée pour les raisons suivantes :
+   - **Interface GraphHopper** : C'est une interface de GraphHopper qui contrôle quelles arêtes sont acceptées lors de la recherche
+   - **Flexibilité de test** : Mocking permet de tester différents scénarios de filtrage sans créer de vrais filtres
+   - **Simplicité** : Interface simple avec une seule méthode `accept()`, facile à mocker
 
 ### Définition des mocks
 
@@ -54,12 +54,12 @@ Deux classes sont mockées dans `ArrayUtilSimpleMockTest` :
 
 ```java
 @ExtendWith(MockitoExtension.class)
-public class ArrayUtilSimpleMockTest {
+public class RoundTripRoutingMockTest {
     @Mock
-    private Random mockRandom;        // Classe mockée #1
+    private LocationIndex mockLocationIndex;  // Classe GraphHopper mockée #1
     
     @Mock
-    private List<Integer> mockList;   // Classe mockée #2
+    private EdgeFilter mockEdgeFilter;        // Classe GraphHopper mockée #2
 }
 ```
 
@@ -67,7 +67,7 @@ public class ArrayUtilSimpleMockTest {
 
 1. **Annotation `@ExtendWith(MockitoExtension.class)`** : Cette annotation active l'intégration de Mockito avec JUnit 5, permettant l'injection automatique des mocks annotés avec `@Mock`.
 
-2. **Annotation `@Mock`** : Cette annotation crée automatiquement un mock de la classe ou interface. Le mock est créé avant chaque test et réinitialisé, garantissant l'isolation entre les tests.
+2. **Annotation `@Mock`** : Cette annotation crée automatiquement un mock de l'interface. Le mock est créé avant chaque test et réinitialisé, garantissant l'isolation entre les tests.
 
 3. **Avantages de cette approche** :
    - **Simplicité** : Pas besoin de créer manuellement les mocks avec `Mockito.mock()`
@@ -79,62 +79,50 @@ public class ArrayUtilSimpleMockTest {
 Dans les tests, le comportement des mocks est défini avec `when().thenReturn()` :
 
 ```java
-// Mock Random (classe mockée #1)
-when(mockRandom.nextInt(5)).thenReturn(2, 1, 3, 0, 2);
+// Mock LocationIndex (classe GraphHopper mockée #1)
+when(mockLocationIndex.findClosest(eq(lat), eq(lon), eq(mockEdgeFilter)))
+    .thenReturn(snap);
 
-// Mock List (classe mockée #2)
-when(mockList.size()).thenReturn(8);
-when(mockList.contains(anyInt())).thenReturn(true);
+// Mock EdgeFilter (classe GraphHopper mockée #2)
+when(mockEdgeFilter.accept(any())).thenReturn(true);
 ```
 
 ### Choix des valeurs simulées
 
-#### Test `testShuffleWithMockedRandom()`
+#### Test `testLookupWithMockedLocationIndexAndEdgeFilter()`
 
-**Valeurs choisies :** `2, 1, 3, 0, 2`
+**Valeurs choisies :** 
+- **LocationIndex** : Retourne des `Snap` valides avec des nœuds 100, 101, 102
+- **EdgeFilter** : Accepte toutes les arêtes (`accept()` retourne `true`)
 
 **Justification :**
 
-1. **Analyse de l'algorithme `shuffle`** :
-   - Pour une liste de taille 10, `maxHalf = 10 / 2 = 5`
-   - La boucle itère 5 fois (pour `x1` de 0 à 4)
-   - À chaque itération, `x2 = random.nextInt(5) + 5`, donc `x2` est dans l'intervalle [5, 9]
-   - Les valeurs retournées (2, 1, 3, 0, 2) produisent donc les indices : 7, 6, 8, 5, 7
+1. **Analyse de la méthode `lookup`** :
+   - `RoundTripRouting.lookup()` appelle `locationIndex.findClosest()` pour trouver le point de départ
+   - Puis génère des points intermédiaires et les recherche également via `locationIndex.findClosest()`
+   - `edgeFilter` est passé à chaque appel de `findClosest()` pour filtrer les arêtes valides
 
 2. **Couverture des cas** :
-   - **Valeurs variées** : Les valeurs 0, 1, 2, 3 couvrent différentes positions dans la seconde moitié de la liste
-   - **Valeur répétée** : La valeur 2 apparaît deux fois, testant le cas où le même indice est sélectionné plusieurs fois
-   - **Valeurs aux extrémités** : 0 (première position de la seconde moitié) et 3 (proche de la fin) testent les cas limites
+   - **Snap valides** : Les `Snap` retournés ont des nœuds valides (100, 101, 102), testant le cas normal
+   - **EdgeFilter acceptant** : Le filtre accepte toutes les arêtes, testant le cas où toutes les arêtes sont accessibles
+   - **Structure de résultat** : Le test vérifie que le résultat contient au moins le point de départ et de fin (round trip)
 
-3. **Nombre d'appels** : Exactement 5 valeurs sont fournies, correspondant au nombre d'itérations de la boucle (`maxHalf = 5`)
+3. **Vérification** : Le test vérifie que `findClosest()` est appelé avec `verify(mockLocationIndex, atLeastOnce()).findClosest(...)`, validant que les deux mocks sont utilisés ensemble.
 
-4. **Vérification** : Le test vérifie que `nextInt(5)` est appelé exactement 5 fois avec `verify(mockRandom, times(5)).nextInt(5)`, validant que l'algorithme utilise correctement le générateur aléatoire.
+#### Test `testLookupWithInvalidSnapFromLocationIndex()`
 
-#### Test `testPermutationWithMockedRandom()`
-
-**Valeurs choisies :** `1, 0, 2, 1, 0`
+**Valeurs choisies :**
+- **LocationIndex** : Retourne un `Snap` invalide (nœud `INVALID_NODE`)
+- **EdgeFilter** : Accepte toutes les arêtes
 
 **Justification :**
 
-1. **Relation avec `shuffle`** : La méthode `permutation` appelle `shuffle` en interne (ligne 82 de `ArrayUtil.java`). Les mêmes valeurs de mock sont nécessaires car `permutation(10, mockRandom)` crée une liste de taille 10 et la mélange.
+1. **Test d'erreur** : Ce test vérifie le comportement quand `LocationIndex` ne trouve pas de point valide
+   - Un `Snap` invalide est retourné (par défaut, `closestNode` est `INVALID_NODE`)
+   - Le code doit lever une exception `PointNotFoundException`
 
-2. **Valeurs différentes du premier test** : Des valeurs différentes (1, 0, 2, 1, 0) sont utilisées pour :
-   - Démontrer que les tests sont indépendants
-   - Tester un scénario différent de mélange
-   - Valider que le mock fonctionne correctement avec différentes séquences
+2. **Couverture des cas d'erreur** :
+   - Teste le chemin d'erreur dans `lookup()` quand le point de départ n'est pas valide
+   - Démontre que les mocks permettent de tester des scénarios d'erreur difficiles à reproduire avec un graphe réel
 
-3. **Vérification de la permutation** : Le test vérifie que le résultat est une permutation valide avec `ArrayUtil.isPermutation(result)`, ce qui garantit que :
-   - Tous les nombres de 0 à 9 sont présents
-   - Aucun nombre n'est dupliqué
-   - Aucun nombre n'est hors de la plage [0, 9]
-
-4. **Vérification de l'utilisation** : Le test utilise `verify(mockRandom, atLeastOnce()).nextInt(anyInt())` pour s'assurer que le générateur aléatoire est bien utilisé, sans spécifier le nombre exact d'appels (car cela dépend de l'implémentation interne de `shuffle`).
-
-#### Test `testPermutationWithRandomAndListMocks()`
-
-**Objectif** : Démontrer l'utilisation des deux classes mockées (`Random` et `List`) dans un même test.
-
-**Justification** :
-- Ce test utilise à la fois `mockRandom` (classe mockée #1) pour créer une permutation via `ArrayUtil.permutation()`
-- Et `mockList` (classe mockée #2) pour démontrer le mockage d'une interface de collection
-- Les deux mocks sont configurés avec `when().thenReturn()` et vérifiés avec `verify()`, démontrant que l'exigence de mocker au moins 2 classes différentes est satisfaite
+3. **Vérification** : Le test vérifie qu'une exception est levée et que `LocationIndex` a bien été appelé, validant que les deux mocks sont utilisés même dans le cas d'erreur.
